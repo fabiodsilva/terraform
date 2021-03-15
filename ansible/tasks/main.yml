@@ -1,0 +1,47 @@
+---
+# tasks file for pratica
+
+- name: Instalando o Apache
+  hosts: webserver
+  become: yes 
+  vars_files:
+    - ../vars/default.yml
+  tasks:
+    - name: Iniciar a instalacao
+      yum:
+         name: httpd
+         state: present
+
+    - name: ensure httpd is running
+      service:
+        name: httpd 
+        state: started
+
+
+
+
+    - name: Criando doc root
+      file:
+        path: "/var/www/{{ http_host }}"
+        state: directory
+        owner: "{{ app_user }}"
+        mode: '0755'
+
+    - name: Copy index test page
+      template:
+        src: "../files/index.html.j2"
+        dest: "/var/www/html/index.html"
+
+
+  handlers:
+    - name: Reload Apache
+      service:
+        name: httpd
+        state: reloaded
+
+    - name: Restart Apache
+      service:
+        name: httpd
+        state: restarted
+      
+     
